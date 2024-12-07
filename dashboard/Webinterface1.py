@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 import dash
 from dash import dcc, html
 import plotly.graph_objs as go
@@ -80,5 +83,7 @@ app.layout = html.Div(style={'backgroundColor': '#1e1e2f', 'color': '#ffffff', '
     ])
 ])
 
+ 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
