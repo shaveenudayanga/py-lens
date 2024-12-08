@@ -1,86 +1,118 @@
-
 # -*- coding: utf-8 -*-
-
-import pandas as pd
 import dash
 from dash import dcc, html
-import plotly.graph_objs as go
 import plotly.express as px
+import pandas as pd
+import numpy as np
+
+# Mock Data for Visualization
+np.random.seed(42)
+
+# Mock fuel data
+fuel_data = pd.DataFrame({
+    'Fuel Source': ['Gasoline', 'Diesel', 'Electric', 'Hybrid'],
+    'Count': [100, 60, 30, 50]
+})
+
+# Mock wheelchair accessibility data
+accessibility_data = pd.DataFrame({
+    'Accessibility': ['Yes', 'No'],
+    'Count': [70, 30]
+})
+
+# Mock registration trends data
+registration_data = pd.DataFrame({
+    'Year': np.arange(2000, 2023),
+    'Registrations': np.random.randint(50, 200, size=23)
+})
+
+# Mock geographic distribution data
+map_data = pd.DataFrame({
+    'Latitude': np.random.uniform(30.0, 42.0, 50),
+    'Longitude': np.random.uniform(-90.0, -80.0, 50),
+    'Registrations': np.random.randint(1, 100, size=50),
+    'City': [f'City {i}' for i in range(50)]
+})
+
+# Mock sentiment data
+sentiment_data = pd.DataFrame({
+    'Sentiment Scores': np.random.randint(-5, 5, 100)
+})
+
+# Mock Kia vehicle sentiment category data
+category_data = pd.DataFrame({
+    'Category': ['Driving Experience', 'Features', 'Value for Money', 'Issues', 'Other'],
+    'Count': np.random.randint(10, 100, 5),
+    'Sentiment': ['Positive', 'Neutral', 'Positive', 'Negative', 'Neutral']
+})
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
-app.title = "Vehicle Insights Dashboard"
+server = app.server
 
-# Sample datasets
-fuel_data = pd.DataFrame({'Fuel Source': ['Gasoline', 'Diesel', 'Electric', 'Hybrid'],
-                          'Count': [1200, 450, 300, 150]})
-
-accessibility_data = pd.DataFrame({'Accessibility': ['Wheelchair Accessible', 'Not Accessible'],
-                                   'Count': [300, 1700]})
-
-registration_data = pd.DataFrame({'Year': [2018, 2019, 2020, 2021, 2022],
-                                   'Registrations': [400, 450, 500, 550, 600]})
-
-map_data = pd.DataFrame({'City': ['Chicago', 'Springfield', 'Peoria'],
-                         'Latitude': [41.8781, 39.7817, 40.6936],
-                         'Longitude': [-87.6298, -89.6501, -89.5880],
-                         'Registrations': [1000, 300, 200]})
-
-sentiment_data = pd.DataFrame({'Sentiment Scores': [0.1, 0.5, 0.8, 0.2, 0.9, 0.4, 0.6, 0.7]})
-
-category_data = pd.DataFrame({'Category': ['Driving Experience', 'Features', 'Value for Money', 'Issues', 'Other'],
-                              'Positive': [120, 90, 80, 40, 30],
-                              'Negative': [10, 20, 15, 50, 5]}).melt(id_vars='Category', var_name='Sentiment', value_name='Count')
-
-# Define layout
+# Main Dashboard Layout
 app.layout = html.Div([
-    html.H1("Vehicle Insights Dashboard", style={'textAlign': 'center'}),
+    html.H1("Vehicle Insights Dashboard", style={'textAlign': 'center', 'marginBottom': '20px'}),
+    
+    # Tabs for Main Dashboard
     dcc.Tabs([
-        dcc.Tab(label='Fuel Type Distribution', children=[
-            dcc.Graph(
-                id='fuel-chart',
-                figure=px.bar(fuel_data, x='Fuel Source', y='Count', title="Fuel Type Distribution")
-            )
+        
+        # Vehicle Details Tab
+        dcc.Tab(label='Vehicle Details', children=[
+            dcc.Tabs([
+                # Sub-tab 1: Fuel Type Distribution
+                dcc.Tab(label='Fuel Type Distribution', children=[
+                    dcc.Graph(
+                        id='fuel-chart',
+                        figure=px.bar(fuel_data, x='Fuel Source', y='Count', title="Fuel Type Distribution")
+                    )
+                ]),
+                # Sub-tab 2: Wheelchair Accessibility
+                dcc.Tab(label='Wheelchair Accessibility', children=[
+                    dcc.Graph(
+                        id='accessibility-chart',
+                        figure=px.pie(accessibility_data, values='Count', names='Accessibility',
+                                      title="Wheelchair Accessibility Share")
+                    )
+                ]),
+                # Sub-tab 3: Registration Trends
+                dcc.Tab(label='Registration Trends', children=[
+                    dcc.Graph(
+                        id='registration-chart',
+                        figure=px.line(registration_data, x='Year', y='Registrations',
+                                       title="Vehicle Registration Trends Over Years")
+                    )
+                ]),
+                # Sub-tab 4: Geographic Distribution
+                dcc.Tab(label='Geographic Distribution', children=[
+                    dcc.Graph(
+                        id='map-chart',
+                        figure=px.scatter_mapbox(
+                            map_data,
+                            lat='Latitude',
+                            lon='Longitude',
+                            size='Registrations',
+                            text='City',
+                            title="Vehicle Registrations by City",
+                            mapbox_style="open-street-map",
+                            zoom=5
+                        )
+                    )
+                ])
+            ])
         ]),
-        dcc.Tab(label='Wheelchair Accessibility', children=[
-            dcc.Graph(
-                id='accessibility-chart',
-                figure=px.pie(accessibility_data, values='Count', names='Accessibility',
-                              title="Wheelchair Accessibility Share")
-            )
-        ]),
-        dcc.Tab(label='Registration Trends', children=[
-            dcc.Graph(
-                id='registration-chart',
-                figure=px.line(registration_data, x='Year', y='Registrations',
-                               title="Vehicle Registration Trends Over Years")
-            )
-        ]),
-        dcc.Tab(label='Geographic Distribution', children=[
-            dcc.Graph(
-                id='map-chart',
-                figure=px.scatter_mapbox(map_data, lat='Latitude', lon='Longitude', size='Registrations',
-                                         text='City', title="Vehicle Registrations by City",
-                                         mapbox_style="open-street-map", zoom=5)
-            )
-        ]),
-        dcc.Tab(label='Sentiment Distribution', children=[
-            dcc.Graph(
-                id='sentiment-chart',
-                figure=px.histogram(sentiment_data, x='Sentiment Scores', nbins=5,
-                                    title="Sentiment Score Distribution")
-            )
-        ]),
-        dcc.Tab(label='Review Sentiments', children=[
+
+        # Kia Vehicles Tab
+        dcc.Tab(label='Kia Vehicles', children=[
             dcc.Graph(
                 id='stacked-bar-chart',
                 figure=px.bar(category_data, x='Category', y='Count', color='Sentiment',
                               barmode='stack', title="Sentiment by Review Category")
             )
-        ]),
+        ])
     ])
 ])
 
-# Run the Dash app
+# Run the app
 if __name__ == '__main__':
     app.run_server(debug=True)

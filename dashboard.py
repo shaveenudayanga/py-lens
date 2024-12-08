@@ -64,7 +64,7 @@ box_chart = px.box(
 # Define layout with colorful design and a header image
 app.layout = html.Div(
     style={
-        'backgroundColor': '#f0f8ff',
+        'backgroundColor': '#d6eaf8',
         'fontFamily': 'Arial, sans-serif',
         'padding': '20px'
     },
@@ -74,7 +74,7 @@ app.layout = html.Div(
             children=[
                 html.H1("Vehicle Dashboard", style={
                     'textAlign': 'center',
-                    'color': '#2c3e50',
+                    'color': '#1c2833 ',
                     'marginBottom': '20px'
                 }),
                 html.Img(src='', 
@@ -90,6 +90,7 @@ app.layout = html.Div(
                     dcc.Graph(figure=bar_chart, id="bar-chart"),
                     style={
                         'width': '48%', 
+                         
                         'display': 'inline-block', 
                         'padding': '10px',
                         'backgroundColor': '#eaf2f8',
