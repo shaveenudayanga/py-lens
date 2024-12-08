@@ -1,6 +1,5 @@
-# py-lens
-A project for data analysis, model deployment, and dashboard creation using Python, Hugging Face, and Plotly Dash
-
+# the-wheels-in-motion
+Analyze public passenger vehicle data and Kia reviews to extract insights using data preparation, NLP classification, sentiment analysis, and interactive visualizations.
 
 ## Model Deployment
 
