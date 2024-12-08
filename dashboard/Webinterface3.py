@@ -56,17 +56,21 @@ app.layout = html.Div([
     
     # Tabs for Main Dashboard
     dcc.Tabs([
-        
         # Vehicle Details Tab
         dcc.Tab(label='Vehicle Details', children=[
             dcc.Tabs([
+
+
                 # Sub-tab 1: Fuel Type Distribution
                 dcc.Tab(label='Fuel Type Distribution', children=[
                     dcc.Graph(
                         id='fuel-chart',
                         figure=px.bar(fuel_data, x='Fuel Source', y='Count', title="Fuel Type Distribution")
                     )
-                ]),
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'}),
+
+
                 # Sub-tab 2: Wheelchair Accessibility
                 dcc.Tab(label='Wheelchair Accessibility', children=[
                     dcc.Graph(
@@ -74,7 +78,10 @@ app.layout = html.Div([
                         figure=px.pie(accessibility_data, values='Count', names='Accessibility',
                                       title="Wheelchair Accessibility Share")
                     )
-                ]),
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'}),
+
+
                 # Sub-tab 3: Registration Trends
                 dcc.Tab(label='Registration Trends', children=[
                     dcc.Graph(
@@ -82,7 +89,10 @@ app.layout = html.Div([
                         figure=px.line(registration_data, x='Year', y='Registrations',
                                        title="Vehicle Registration Trends Over Years")
                     )
-                ]),
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'}),
+
+                   
                 # Sub-tab 4: Geographic Distribution
                 dcc.Tab(label='Geographic Distribution', children=[
                     dcc.Graph(
@@ -98,9 +108,11 @@ app.layout = html.Div([
                             zoom=5
                         )
                     )
-                ])
-            ])
-        ]),
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'})
+            ],
+               style={'backgroundColor': '#e3f2fd', 'borderRadius': '10px', 'padding': '10px'})
+        ], style={'backgroundColor': '#e3f2fd', 'borderRadius': '10px', 'fontSize': '16px'}),
 
         # Kia Vehicles Tab
         dcc.Tab(label='Kia Vehicles', children=[
@@ -109,8 +121,10 @@ app.layout = html.Div([
                 figure=px.bar(category_data, x='Category', y='Count', color='Sentiment',
                               barmode='stack', title="Sentiment by Review Category")
             )
-        ])
-    ])
+        ], style={'backgroundColor': '#fce4ec', 'border': '1px solid #f8bbd0', 'fontSize': '18px'},
+           selected_style={'backgroundColor': '#f8bbd0', 'color': 'black', 'border': '1px solid #ad1457', 'fontSize': '18px'})
+    ],
+       style={'backgroundColor': '#f8f9fa', 'borderRadius': '10px'})
 ])
 
 # Run the app
