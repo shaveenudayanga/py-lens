@@ -68,7 +68,7 @@ app.layout = html.Div([
                         figure=px.bar(fuel_data, x='Fuel Source', y='Count', title="Fuel Type Distribution")
                     )
                 ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'}),
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
 
 
                 # Sub-tab 2: Wheelchair Accessibility
@@ -79,7 +79,7 @@ app.layout = html.Div([
                                       title="Wheelchair Accessibility Share")
                     )
                 ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'}),
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
 
 
                 # Sub-tab 3: Registration Trends
@@ -90,9 +90,9 @@ app.layout = html.Div([
                                        title="Vehicle Registration Trends Over Years")
                     )
                 ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'}),
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
 
-                   
+
                 # Sub-tab 4: Geographic Distribution
                 dcc.Tab(label='Geographic Distribution', children=[
                     dcc.Graph(
@@ -109,7 +109,7 @@ app.layout = html.Div([
                         )
                     )
                 ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'border': '1px solid #0056b3', 'fontSize': '12px', 'padding': '5px'})
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'})
             ],
                style={'backgroundColor': '#e3f2fd', 'borderRadius': '10px', 'padding': '10px'})
         ], style={'backgroundColor': '#e3f2fd', 'borderRadius': '10px', 'fontSize': '16px'}),
