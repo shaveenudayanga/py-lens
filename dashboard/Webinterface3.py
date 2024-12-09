@@ -56,32 +56,35 @@ server = app.server
 
 # Main Dashboard Layout
 app.layout = html.Div([
-    html.H1("Vehicle Insights Dashboard", style={'textAlign': 'center', 'marginBottom': '20px'}),
+    html.H1("Vehicle Insights Dashboard", className='header'),
     
     # Filters
     html.Div([
-        html.Label('Select Fuel Type:'),
+        html.Label('Select Fuel Type:', className='label'),
         dcc.Dropdown(
             id='fuel-type-filter',
             options=[{'label': 'All', 'value': 'All'}] + [{'label': fuel, 'value': fuel} for fuel in fuel_data['Fuel Source']],
             value='All',
-            clearable=False
+            clearable=False,
+            className='dropdown'
         ),
-        html.Label('Select Accessibility:'),
+        html.Label('Select Accessibility:', className='label'),
         dcc.Dropdown(
             id='accessibility-filter',
             options=[{'label': 'All', 'value': 'All'}] + [{'label': acc, 'value': acc} for acc in accessibility_data['Accessibility']],
             value='All',
-            clearable=False
+            clearable=False,
+            className='dropdown'
         ),
-        html.Label('Select Year Range:'),
+        html.Label('Select Year Range:', className='label'),
         dcc.RangeSlider(
             id='year-range-slider',
             min=2000,
             max=2022,
             step=1,
             marks={year: str(year) for year in range(2000, 2023)},
-            value=[2000, 2022]
+            value=[2000, 2022],
+            className='slider'
         )
     ], style={'padding': '30px'}),
 
@@ -96,40 +99,27 @@ app.layout = html.Div([
                     children=[
                         dcc.Graph(id='fuel-chart')
                     ], 
-                    style={
-                        'backgroundColor': '#f0f8ff', 
-                        'border': '1px solid #d1e7ff', 
-                        'fontSize': '12px', 
-                        'padding': '5px'
-                    },
-                    selected_style={
-                        'backgroundColor': '#d1e7ff', 
-                        'color': 'black', 
-                        'fontSize': '12px', 
-                        'padding': '5px'
-                    }
+                    className='tab-content',
+                    selected_className='tab-content-selected'
                 ),
 
                 # Sub-tab 2: Wheelchair Accessibility
                 dcc.Tab(label='Wheelchair Accessibility', children=[
                     dcc.Graph(id='accessibility-chart')
-                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
+                ], className='tab-content', selected_className='tab-content-selected'),
 
                 # Sub-tab 3: Registration Trends
                 dcc.Tab(label='Registration Trends', children=[
                     dcc.Graph(id='registration-chart')
-                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
+                ], className='tab-content', selected_className='tab-content-selected'),
 
                 # Sub-tab 4: Geographic Distribution
                 dcc.Tab(label='Geographic Distribution', children=[
                     dcc.Graph(id='map-chart')
-                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'})
+                ], className='tab-content', selected_className='tab-content-selected')
             ],
-               style={'backgroundColor': '#e3f2fd', 'borderRadius': '10px', 'padding': '10px'})
-        ], style={'backgroundColor': '#e3f2fd', 'borderRadius': '10px', 'fontSize': '16px'}),
+               style={'backgroundColor': '#000000', 'borderRadius': '5px', 'padding': '10px'})
+        ], style={'backgroundColor': '#000000', 'borderRadius': '5px', 'fontSize': '25px'}),
 
         # Kia Vehicles Tab
         dcc.Tab(label='Kia Vehicles', children=[
@@ -138,10 +128,10 @@ app.layout = html.Div([
                 figure=px.bar(category_data, x='Category', y='Count', color='Sentiment',
                               barmode='stack', title="Sentiment by Review Category")
             )
-        ], style={'backgroundColor': '#fce4ec', 'border': '1px solid #f8bbd0', 'fontSize': '18px'},
-           selected_style={'backgroundColor': '#f8bbd0', 'color': 'black', 'border': '1px solid #ad1457', 'fontSize': '18px'})
+        ], style={'backgroundColor': '#ADD8E6', 'border': '1px solid #f8bbd0', 'fontSize': '25px'},
+           selected_style={'backgroundColor': '#ADD8E6', 'color': 'black', 'border': '1px solid #ad1457', 'fontSize': '25px'})
     ],
-       style={'backgroundColor': '#f8f9fa', 'borderRadius': '10px'})
+       style={'backgroundColor': '#000000', 'borderRadius': '10px'})
 ])
 
 # Callbacks for updating charts based on filters
