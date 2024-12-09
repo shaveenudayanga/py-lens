@@ -46,6 +46,9 @@ category_data = pd.DataFrame({
     'Sentiment': ['Positive', 'Neutral', 'Positive', 'Negative', 'Neutral']
 })
 
+# Calculate percentage
+fuel_data['Percentage'] = (fuel_data['Count'] / fuel_data['Count'].sum()) * 100
+
 # Initialize the Dash app
 app = dash.Dash(__name__)
 server = app.server
@@ -62,13 +65,33 @@ app.layout = html.Div([
 
 
                 # Sub-tab 1: Fuel Type Distribution
-                dcc.Tab(label='Fuel Type Distribution', children=[
-                    dcc.Graph(
-                        id='fuel-chart',
-                        figure=px.bar(fuel_data, x='Fuel Source', y='Count', title="Fuel Type Distribution")
-                    )
-                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
-                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
+                dcc.Tab(
+    label='Fuel Type Distribution',
+    children=[
+        dcc.Graph(
+            id='fuel-chart',
+            figure=px.bar(
+                fuel_data, 
+                x='Fuel Source', 
+                y='Percentage', 
+                title="Fuel Type Distribution",
+                labels={'Percentage': 'Percentage (%)'}  # Label y-axis as Percentage
+            )
+        )
+    ], 
+    style={
+        'backgroundColor': '#f0f8ff', 
+        'border': '1px solid #d1e7ff', 
+        'fontSize': '12px', 
+        'padding': '5px'
+    },
+    selected_style={
+        'backgroundColor': '#d1e7ff', 
+        'color': 'black', 
+        'fontSize': '12px', 
+        'padding': '5px'
+    }
+),
 
 
                 # Sub-tab 2: Wheelchair Accessibility
