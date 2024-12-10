@@ -12,7 +12,7 @@ np.random.seed(42)
 # Mock fuel data
 fuel_data = pd.DataFrame({
     'Fuel Source': ['Gasoline', 'Diesel', 'Electric', 'Hybrid'],
-    'Count': [100, 60, 30, 50]
+    'Count': [90, 60, 30, 50]
 })
 
 # Mock wheelchair accessibility data
