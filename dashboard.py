@@ -38,7 +38,21 @@ map_data = pd.DataFrame({
     'City': [f'City {i}' for i in range(50)]
 })
 
-# Load processed data
+
+# Calculate percentage
+fuel_data['Percentage'] = (fuel_data['Count'] / fuel_data['Count'].sum()) * 100
+
+#--------------------------------------------------------------------------------------------------
+# Load Vehicle Data
+vehicle_data = pd.read_csv("final_data_output.csv")
+
+# Group by 'Status' and 'Company Name' columns
+grouped_Status_Company_Name = vehicle_data.groupby(['Status', 'Company Name']).size().reset_index(name='count')
+
+
+
+#--------------------------------------------------------------------------------------------------
+# Load Reviews Data
 classified_reviews = pd.read_csv("classified_sentiment_reviews.csv")  # Make sure this contains 'talks_about' and 'sentiment'
 classified_reviews['talks_about'] = classified_reviews['talks_about'].str.strip().str.lower()
 
@@ -55,7 +69,7 @@ custom_labels = {
 classified_reviews['talks_about'] = classified_reviews['talks_about'].map(custom_labels)
 
 # Prepare the data for the bar chart
-grouped_data = classified_reviews.groupby(['talks_about', 'sentiment']).size().reset_index(name='count')
+grouped_talks_about_sentiment = classified_reviews.groupby(['talks_about', 'sentiment']).size().reset_index(name='count')
 
 # Define custom order for the x-axis
 custom_order = [
@@ -66,10 +80,7 @@ custom_order = [
     "Other"
 ]
 
-
-
-# Calculate percentage
-fuel_data['Percentage'] = (fuel_data['Count'] / fuel_data['Count'].sum()) * 100
+#--------------------------------------------------------------------------------------------------
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
@@ -155,20 +166,19 @@ app.layout = html.Div([
 
                 html.Div([
                     dcc.Graph(
-                        id='map-chart',
-                        figure=px.scatter_mapbox(
-                            map_data,
-                            lat='Latitude',
-                            lon='Longitude',
-                            size='Registrations',
-                            text='City',
-                            title="Vehicle Registrations by City",
-                            mapbox_style="open-street-map",
-                            zoom=5
+                        id='status-company-name-chart',
+                        figure = px.bar(
+                            grouped_Status_Company_Name,
+                            x='Status',
+                            y='count',
+                            color='Company Name',
+                            barmode='group',
+                            labels={'Status': 'Status', 'count': 'Count'},
+                            title='Vehicle Status Distribution by Company Name',
                         )
                     )
-                ], style={'width': '48%', 'display': 'inline-block', 'padding': '0 20px'})
-            ], style={'display': 'flex', 'justify-content': 'center', 'align-items': 'center', 'padding': '20px'})
+                ], style={'width': '100%', 'display': 'inline-block', 'padding': '0 20px'})
+            ])
         ], style={'backgroundColor': '#33a0a6', 'border': '0px', 'fontSize': '18px'},
            selected_style={'backgroundColor': '#207f85', 'color': 'white', 'border': '0px', 'fontSize': '18px'}),
 
@@ -177,7 +187,7 @@ app.layout = html.Div([
             dcc.Graph(
                 id='stacked-bar-chart',
                 figure = px.bar(
-                    grouped_data,
+                    grouped_talks_about_sentiment,
                     x='talks_about',
                     y='count',
                     color='sentiment',
@@ -230,24 +240,24 @@ def update_registration_chart(selected_years):
     fig = px.line(filtered_data, x='Year', y='Registrations', title="Vehicle Registration Trends Over Years")
     return fig
 
-# Callback to update the map chart based on selected year range
-@app.callback(
-    Output('map-chart', 'figure'),
-    Input('year-range-slider', 'value')
-)
-def update_map_chart(selected_years):
-    filtered_data = map_data[(map_data['Registrations'] >= selected_years[0]) & (map_data['Registrations'] <= selected_years[1])]
-    fig = px.scatter_mapbox(
-        filtered_data,
-        lat='Latitude',
-        lon='Longitude',
-        size='Registrations',
-        text='City',
-        title="Vehicle Registrations by City",
-        mapbox_style="open-street-map",
-        zoom=5
-    )
-    return fig
+# # Callback to update the map chart based on selected year range
+# @app.callback(
+#     Output('status-company-name-chart', 'figure'),
+#     Input('year-range-slider', 'value')
+# )
+# def update_map_chart(selected_years):
+#     filtered_data = map_data[(map_data['Registrations'] >= selected_years[0]) & (map_data['Registrations'] <= selected_years[1])]
+#     fig = px.scatter_mapbox(
+#         filtered_data,
+#         lat='Latitude',
+#         lon='Longitude',
+#         size='Registrations',
+#         text='City',
+#         title="Vehicle Registrations by City",
+#         mapbox_style="open-street-map",
+#         zoom=5
+#     )
+#     return fig
 
 # Run the app
 if __name__ == '__main__':
