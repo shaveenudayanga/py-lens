@@ -68,18 +68,6 @@ custom_order = [
 
 
 
-# Mock sentiment data
-sentiment_data = pd.DataFrame({
-    'Sentiment Scores': np.random.randint(-5, 5, 100)
-})
-
-# Mock Kia vehicle sentiment category data
-category_data = pd.DataFrame({
-    'Category': ['Driving Experience', 'Features', 'Value for Money', 'Issues', 'Other'],
-    'Count': np.random.randint(10, 100, 5),
-    'Sentiment': ['Positive', 'Neutral', 'Positive', 'Negative', 'Neutral']
-})
-
 # Calculate percentage
 fuel_data['Percentage'] = (fuel_data['Count'] / fuel_data['Count'].sum()) * 100
 
@@ -196,7 +184,7 @@ app.layout = html.Div([
                     barmode='group',
                     labels={'talks_about': 'Talks About', 'count': 'Count'},
                     title='Sentiment Distribution by Category',
-                    category_orders={'talks_about': custom_order}  # Ensure the order is specified
+                    category_orders={'talks_about': custom_order}
                 )
             )
         ], style={'backgroundColor': '#33a0a6', 'border': '0px', 'fontSize': '18px'},
@@ -206,6 +194,7 @@ app.layout = html.Div([
 
 
 # Callbacks for updating charts based on filters
+# Callback to update the fuel chart based on selected fuel type
 @app.callback(
     Output('fuel-chart', 'figure'),
     Input('fuel-type-filter', 'value')
@@ -218,6 +207,7 @@ def update_fuel_chart(selected_fuel):
     fig = px.bar(filtered_data, x='Fuel Source', y='Percentage', title="Fuel Type Distribution")
     return fig
 
+# Callback to update the accessibility chart based on selected accessibility option
 @app.callback(
     Output('accessibility-chart', 'figure'),
     Input('accessibility-filter', 'value')
@@ -230,6 +220,7 @@ def update_accessibility_chart(selected_accessibility):
     fig = px.pie(filtered_data, values='Count', names='Accessibility', title="Wheelchair Accessibility Share")
     return fig
 
+# Callback to update the registration chart based on selected year range
 @app.callback(
     Output('registration-chart', 'figure'),
     Input('year-range-slider', 'value')
@@ -239,6 +230,7 @@ def update_registration_chart(selected_years):
     fig = px.line(filtered_data, x='Year', y='Registrations', title="Vehicle Registration Trends Over Years")
     return fig
 
+# Callback to update the map chart based on selected year range
 @app.callback(
     Output('map-chart', 'figure'),
     Input('year-range-slider', 'value')
