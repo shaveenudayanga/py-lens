@@ -51,13 +51,14 @@ category_data = pd.DataFrame({
 fuel_data['Percentage'] = (fuel_data['Count'] / fuel_data['Count'].sum()) * 100
 
 # Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__)
 server = app.server
 
 # Main Dashboard Layout
 app.layout = html.Div([
-    html.H1("Vehicle Insights Dashboard", className='header'),
+    html.H1("Vehicle Insights Dashboard", style={'textAlign': 'center', 'marginBottom': '20px', 'marginTop': '20px'}),
     
+
     # Filters
     html.Div([
         html.Label('Select Fuel Type:', className='label'),
@@ -90,36 +91,88 @@ app.layout = html.Div([
 
     # Tabs for Main Dashboard
     dcc.Tabs([
+        
         # Vehicle Details Tab
         dcc.Tab(label='Vehicle Details', children=[
             dcc.Tabs([
+
+
                 # Sub-tab 1: Fuel Type Distribution
                 dcc.Tab(
                     label='Fuel Type Distribution',
-                    children=[
-                        dcc.Graph(id='fuel-chart')
-                    ], 
-                    className='tab-content',
-                    selected_className='tab-content-selected'
-                ),
+                     children=[
+                        dcc.Graph(
+                           id='fuel-chart',
+                           figure=px.bar(
+                                fuel_data, 
+                                x='Fuel Source', 
+                                y='Percentage', 
+                                title="Fuel Type Distribution",
+                                labels={'Percentage': 'Percentage (%)'}  # Label y-axis as Percentage
+                                        )
+                                  )
+                               ], 
+                    style={
+                     'backgroundColor': '#f0f8ff', 
+                     'border': '1px solid #d1e7ff', 
+                     'fontSize': '12px', 
+                     'padding': '5px'
+                          },
+                    selected_style={
+                    'backgroundColor': '#d1e7ff', 
+                    'color': 'black', 
+                    'fontSize': '12px', 
+                    'padding': '5px'
+                                    }
+                          ),
+
 
                 # Sub-tab 2: Wheelchair Accessibility
-                dcc.Tab(label='Wheelchair Accessibility', children=[
-                    dcc.Graph(id='accessibility-chart')
-                ], className='tab-content', selected_className='tab-content-selected'),
+                 dcc.Tab(label='Wheelchair Accessibility', children=[
+                    dcc.Graph(
+                        id='accessibility-chart',
+                        figure=px.pie(accessibility_data, values='Count', names='Accessibility',
+                                      title="Wheelchair Accessibility Share")
+                    )
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'}),
+                
 
+                
                 # Sub-tab 3: Registration Trends
                 dcc.Tab(label='Registration Trends', children=[
-                    dcc.Graph(id='registration-chart')
-                ], className='tab-content', selected_className='tab-content-selected'),
+                    dcc.Graph(
+                        id='registration-chart',
+                        figure=px.line(registration_data, x='Year', y='Registrations',
+                                       title="Vehicle Registration Trends Over Years")
+                    )
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black',  'fontSize': '12px', 'padding': '5px'}),
+
+
 
                 # Sub-tab 4: Geographic Distribution
-                dcc.Tab(label='Geographic Distribution', children=[
-                    dcc.Graph(id='map-chart')
-                ], className='tab-content', selected_className='tab-content-selected')
+                 dcc.Tab(label='Geographic Distribution', children=[
+                    dcc.Graph(
+                        id='map-chart',
+                        figure=px.scatter_mapbox(
+                            map_data,
+                            lat='Latitude',
+                            lon='Longitude',
+                            size='Registrations',
+                            text='City',
+                            title="Vehicle Registrations by City",
+                            mapbox_style="open-street-map",
+                            zoom=5
+                        )
+                    )
+                ], style={'backgroundColor': '#f0f8ff', 'border': '1px solid #d1e7ff', 'fontSize': '12px', 'padding': '5px'},
+                   selected_style={'backgroundColor': '#d1e7ff', 'color': 'black', 'fontSize': '12px', 'padding': '5px'})
             ],
-               style={'backgroundColor': '#000000', 'borderRadius': '5px', 'padding': '10px'})
-        ], style={'backgroundColor': '#000000', 'borderRadius': '5px', 'fontSize': '25px'}),
+               style={'backgroundColor': '#e3f2fd', 'borderRadius': '5px', 'padding': '10px'})
+        ], style={'backgroundColor': '#fce4ec', 'borderRadius': '10px', 'fontSize': '18px'}),
+
+
 
         # Kia Vehicles Tab
         dcc.Tab(label='Kia Vehicles', children=[
@@ -128,11 +181,15 @@ app.layout = html.Div([
                 figure=px.bar(category_data, x='Category', y='Count', color='Sentiment',
                               barmode='stack', title="Sentiment by Review Category")
             )
-        ], style={'backgroundColor': '#ADD8E6', 'border': '1px solid #f8bbd0', 'fontSize': '25px'},
-           selected_style={'backgroundColor': '#ADD8E6', 'color': 'black', 'border': '1px solid #ad1457', 'fontSize': '25px'})
+        ], style={'backgroundColor': '#fce4ec', 'border': '1px solid #f8bbd0', 'fontSize': '18px'},
+           selected_style={'backgroundColor': '#f8bbd0', 'color': 'black', 'border': '1px solid #ad1457', 'fontSize': '18px'})
+
+
+          
     ],
-       style={'backgroundColor': '#000000', 'borderRadius': '10px'})
+       style={'backgroundColor': '#f8f9fa', 'borderRadius': '10px'})
 ])
+
 
 # Callbacks for updating charts based on filters
 @app.callback(
