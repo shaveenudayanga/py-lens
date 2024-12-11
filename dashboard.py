@@ -3,57 +3,20 @@ import dash
 from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
-import numpy as np
-import dash_bootstrap_components as dbc
-import seaborn as sns
-
-
-
-
-# Mock Data for Visualization
-np.random.seed(42)
-
-# Mock wheelchair accessibility data
-accessibility_data = pd.DataFrame({
-    'Accessibility': ['Yes', 'No'],
-    'Count': [70, 30]
-})
-
-# Mock registration trends data
-registration_data = pd.DataFrame({
-    'Year': np.arange(2000, 2023),
-    'Registrations': np.random.randint(50, 200, size=23)
-})
 
 #--------------------------------------------------------------------------------------------------
 
 # Load Vehicle Data
 vehicle_data = pd.read_csv("final_data_output.csv")
 
-# Group by 'Status' and 'Company Name' columns
-grouped_Status_Company_Name = vehicle_data.groupby(['Status', 'Company Name']).size().reset_index(name='count')
-
-# Group by 'Vehicle Fuel Source' and 'Vehicle Make' columns
-grouped_fuel =  vehicle_data.groupby(['Vehicle Fuel Source', 'Vehicle Make']).size().reset_index(name='count')
-#Calculate percentage
-grouped_fuel['Percentage'] = (grouped_fuel['count'] / grouped_fuel['count'].sum()) * 100
-
-# Group the data by 'Wheelchair Accessible', 'Vehicle Make', and 'Vehicle Model', and calculate counts
-grouped_accessibility_data = vehicle_data.groupby(['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model']).size().reset_index(name='Count')
 custom_labels = {
     "N": "Not Accessible",
     "Y": "Accessible",
 }
 
 # Replace 'Wheelchair Accessible' values with custom labels
-grouped_accessibility_data['Wheelchair Accessible'] = grouped_accessibility_data['Wheelchair Accessible'].map(custom_labels)
-
-# Group by 'Status' and 'Vehicle Fuel Source' columns
-grouped_status_fuel_source = vehicle_data.groupby(['Status', 'Vehicle Fuel Source']).size().reset_index(name='count')
-
-# Pivot the data to create a matrix
-heatmap_data = grouped_status_fuel_source.pivot(index='Status', columns='Vehicle Fuel Source', values='count')
-
+vehicle_data['Wheelchair Accessible'] = vehicle_data['Wheelchair Accessible'].map(custom_labels)
+    
 #--------------------------------------------------------------------------------------------------
 
 # Load Reviews Data
@@ -86,41 +49,64 @@ custom_order = [
 
 #--------------------------------------------------------------------------------------------------
 
-# Create the fuel pie chart
-fuelPieChart=px.pie(
-        grouped_fuel, values='Percentage',
-        names='Vehicle Fuel Source',
-        title="Fuel Type Distribution",
-)
+def show_graphs(vehicle_data):
 
-# Create the accessibility treemap
-accessibilityTreeMap = px.treemap(
-                            grouped_accessibility_data,
-                            path=['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model'],
-                            values='Count',
-                            labels={'Wheelchair Accessible': 'Wheelchair Accessible',
-                                    'Vehicle Make': 'Vehicle Make'},
-                            title='Treemap of Vehicle Data by Accessibility and Make'
-                        )          
+    # Create the fuel pie chart
+    # Group by 'Vehicle Fuel Source' and 'Vehicle Make' columns
+    grouped_fuel =  vehicle_data.groupby(['Vehicle Fuel Source', 'Vehicle Make']).size().reset_index(name='count')
+    #Calculate percentage
+    grouped_fuel['Percentage'] = (grouped_fuel['count'] / grouped_fuel['count'].sum()) * 100
+    # Create the pie chart
+    fuelPieChart=px.pie(
+            grouped_fuel, values='Percentage',
+            names='Vehicle Fuel Source',
+            title="Fuel Type Distribution",
+    )
 
-# Create the heatmap figure
-heatMap = px.imshow(
-    heatmap_data,
-    text_auto=True,  # Display numbers inside heatmap cells
-    color_continuous_scale='Blues',  # Set color scale
-    title='Heatmap of Vehicle Status by Fuel Source'
-)
+    # Create the accessibility treemap
+    # Group the data by 'Wheelchair Accessible', 'Vehicle Make', and 'Vehicle Model', and calculate counts
+    grouped_accessibility_data = vehicle_data.groupby(['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model']).size().reset_index(name='Count')
+    # Create the treemap
+    accessibilityTreeMap = px.treemap(
+                                grouped_accessibility_data,
+                                path=['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model'],
+                                values='Count',
+                                labels={'Wheelchair Accessible': 'Wheelchair Accessible',
+                                        'Vehicle Make': 'Vehicle Make'},
+                                title='Treemap of Vehicle Data by Accessibility and Make'
+                            ) 
+             
+    # Create the heatmap of vehicle status by fuel source
+    # Group by 'Status' and 'Vehicle Fuel Source' columns
+    grouped_status_fuel_source = vehicle_data.groupby(['Status', 'Vehicle Fuel Source']).size().reset_index(name='count')
+    # Pivot the data to create a matrix
+    heatmap_data = grouped_status_fuel_source.pivot(index='Status', columns='Vehicle Fuel Source', values='count')
+    # Create the heatmap figure
+    heatMap = px.imshow(
+        heatmap_data,
+        text_auto=True,  # Display numbers inside heatmap cells
+        color_continuous_scale='Blues',  # Set color scale
+        title='Heatmap of Vehicle Status by Fuel Source'
+    )
 
-# Create the stacked bar chart
-stackedBarChart = px.bar(
-                    grouped_Status_Company_Name,
-                    x='Status',
-                    y='count',
-                    color='Company Name',
-                    barmode='group',
-                    labels={'Status': 'Status', 'count': 'Count'},
-                    title='Vehicle Status Distribution by Company Name',
-                    )
+    # Create the stacked bar chart of vehicle status by company name
+    # Group by 'Status' and 'Company Name' columns
+    grouped_Status_Company_Name = vehicle_data.groupby(['Status', 'Company Name']).size().reset_index(name='count')
+    # Create the stacked bar chart
+    stackedBarChart = px.bar(
+                        grouped_Status_Company_Name,
+                        x='Status',
+                        y='count',
+                        color='Company Name',
+                        barmode='group',
+                        labels={'Status': 'Status', 'count': 'Count'},
+                        title='Vehicle Status Distribution by Company Name',
+                        )
+    
+    return fuelPieChart, accessibilityTreeMap, heatMap, stackedBarChart
+
+# Call the function to show the graphs
+fuelPieChart, accessibilityTreeMap, heatMap, stackedBarChart = show_graphs(vehicle_data)
 
 #-------------------------------------------------------------------------------------------
 
@@ -145,36 +131,37 @@ app.layout = html.Div([
                 html.Label('Select Year Range:', className='label'),
                 dcc.RangeSlider(
                     id='year-range-slider',
-                    min=2000,
-                    max=2022,
+                    min=int(vehicle_data['Vehicle Model Year'].min()),
+                    max=int(vehicle_data['Vehicle Model Year'].max()),
                     step=1,
-                    marks={year: str(year) for year in range(2000, 2023)},
-                    value=[2000, 2022],
+                    marks={year: str(year) for year in range(int(vehicle_data['Vehicle Model Year'].min()),
+                                                             int(vehicle_data['Vehicle Model Year'].max()) + 1, 2)},
+                    value=[int(vehicle_data['Vehicle Model Year'].min()), int(vehicle_data['Vehicle Model Year'].max())],
                     className='slider'
                 ),
                 html.Div([
                     html.Label('Select Fuel Type:', className='label'),
                     dcc.Dropdown(
                         id='fuel-type-filter',
-                        options=[{'label': 'All', 'value': 'All'}] or [{'label': ft, 'value': ft} for ft in vehicle_data['Vehicle Fuel Source'].unique()],
+                        options=[{'label': ft, 'value': ft} for ft in vehicle_data['Vehicle Fuel Source'].unique()],
                         placeholder="Filter by Fuel Type",
                         multi=True,  # Allow multiple selections
                         className='dropdown',
                         style={'width': '200px', 'marginRight': '50px'}
                     ),
-                    html.Label('Select Accessibility:', className='label'),
+                    html.Label('Select Wheelchair Accessibility:', className='label'),
                     dcc.Dropdown(
                         id='accessibility-filter',
-                        options=[{'label': 'All', 'value': 'All'}] + [{'label': acc, 'value': acc} for acc in vehicle_data['Wheelchair Accessible'].unique()],
-                        value='All',
-                        clearable=False,
+                        placeholder="All",
+                        options=[{'label': acc, 'value': acc} for acc in vehicle_data['Wheelchair Accessible'].unique()],
+                        clearable=True,
                         className='dropdown',
-                        style={'width': '100px', 'marginRight': '50px'}
+                        style={'width': '150px', 'marginRight': '50px'}
                     ),
-                    html.Label("Select Vehicle Make"),
+                    html.Label("Select Vehicle Make", className='label'),
                     dcc.Dropdown(
                         id='vehicle-make-filter',
-                        options=[{'label': 'All', 'value': 'All'}] or [{'label': vm, 'value': vm} for vm in vehicle_data['Vehicle Make'].unique()],
+                        options=[{'label': vm, 'value': vm} for vm in vehicle_data['Vehicle Make'].unique()],
                         placeholder="Filter by Vehicle Make",
                         multi=True,  # Allow multiple selections
                         style={'width': '200px'}
@@ -216,10 +203,10 @@ app.layout = html.Div([
 
             # Vehicle Status Distribution Stacked Bar Chart  
             html.Div([
-                dcc.Graph(
-                    id='status-company-name-chart',
-                    figure = stackedBarChart
-                )
+                # dcc.Graph(
+                #     id='status-company-name-chart',
+                #     figure = stackedBarChart
+                # )
             ], style={'padding': '0 20px'})
 
 
@@ -247,75 +234,37 @@ app.layout = html.Div([
 ], style={'margin': '0', 'padding': '0', 'boxSizing': 'border-box', 'fontFamily': 'Arial, sans-serif'})
 
 
-# # Callback to update the heatmap based on filters
-# @app.callback(
-#     Output('status-fuel-source-chart', 'figure'),
-#     [Input('fuel-type-filter', 'value'),
-#      Input('vehicle-make-filter', 'value')]
-# )
-# def update_heatmap(selected_fuel_types, selected_vehicle_makes):
-#     # Filter data based on selections
-#     filtered_data = vehicle_data
-#     if selected_fuel_types:
-#         filtered_data = filtered_data[filtered_data['Vehicle Fuel Source'].isin(selected_fuel_types)]
-#     if selected_vehicle_makes:
-#         filtered_data = filtered_data[filtered_data['Vehicle Make'].isin(selected_vehicle_makes)]
+#-------------------------------------------------------------------------------------------
 
 # Callbacks for updating charts based on filters
-# Callback to update the fuel chart based on selected fuel type
-# @app.callback(
-#     Output('fuel-chart', 'figure'),
-#     Input('fuel-type-filter', 'value')
-# )
-# def update_fuel_chart(selected_fuel):
-#     if selected_fuel == 'All':
-#         filtered_data = fuel_data
-#     else:
-#         filtered_data = fuel_data[fuel_data['Fuel Source'] == selected_fuel]
-#     fig = px.bar(filtered_data, x='Fuel Source', y='Percentage', title="Fuel Type Distribution")
-#     return fig
+@app.callback(
+    [Output('fuel-chart', 'figure'),
+     Output('accessibility-chart', 'figure'),
+     Output('status-fuel-source-chart', 'figure')
+     ],
+    [Input('year-range-slider', 'value'),
+     Input('fuel-type-filter', 'value'),
+     Input('accessibility-filter', 'value'),
+     Input('vehicle-make-filter', 'value')]
+)
 
-# Callback to update the accessibility chart based on selected accessibility option
-# @app.callback(
-#     Output('accessibility-chart', 'figure'),
-#     Input('accessibility-filter', 'value')
-# )
-# def update_accessibility_chart(selected_accessibility):
-#     if selected_accessibility == 'All':
-#         filtered_data = accessibility_data
-#     else:
-#         filtered_data = accessibility_data[accessibility_data['Accessibility'] == selected_accessibility]
-#     fig = px.pie(filtered_data, values='Count', names='Accessibility', title="Wheelchair Accessibility Share")
-#     return fig
-
-# Callback to update the registration chart based on selected year range
-# @app.callback(
-#     Output('registration-chart', 'figure'),
-#     Input('year-range-slider', 'value')
-# )
-# def update_registration_chart(selected_years):
-#     filtered_data = registration_data[(registration_data['Year'] >= selected_years[0]) & (registration_data['Year'] <= selected_years[1])]
-#     fig = px.line(filtered_data, x='Year', y='Registrations', title="Vehicle Registration Trends Over Years")
-#     return fig
-
-# # Callback to update the map chart based on selected year range
-# @app.callback(
-#     Output('status-company-name-chart', 'figure'),
-#     Input('year-range-slider', 'value')
-# )
-# def update_map_chart(selected_years):
-#     filtered_data = map_data[(map_data['Registrations'] >= selected_years[0]) & (map_data['Registrations'] <= selected_years[1])]
-#     fig = px.scatter_mapbox(
-#         filtered_data,
-#         lat='Latitude',
-#         lon='Longitude',
-#         size='Registrations',
-#         text='City',
-#         title="Vehicle Registrations by City",
-#         mapbox_style="open-street-map",
-#         zoom=5
-#     )
-#     return fig
+# Function to update the charts based on the selected filters
+def update_fuel_chart(selected_year_range, selected_fuel_types, selected_accessibility, selected_vehicle_makes):
+    filtered_data = vehicle_data    # Initialize the filtered data with the original data
+    if selected_year_range:
+        year_range = list(range(selected_year_range[0], selected_year_range[1] + 1)) # Create a list of years
+        filtered_data = filtered_data[filtered_data['Vehicle Model Year'].isin(year_range)]
+    if selected_fuel_types:
+        filtered_data = filtered_data[filtered_data['Vehicle Fuel Source'].isin(selected_fuel_types)]
+    if selected_accessibility:
+        filtered_data = filtered_data[filtered_data['Wheelchair Accessible'].isin([selected_accessibility])]
+    if selected_vehicle_makes:
+        filtered_data = filtered_data[filtered_data['Vehicle Make'].isin(selected_vehicle_makes)]
+    
+    # Call the function to show the graphs
+    fuelPieChart, accessibilityTreeMap, heatMap, stackedBarChart = show_graphs(filtered_data)
+    # Return the updated figures
+    return fuelPieChart, accessibilityTreeMap, heatMap
 
 # Run the app
 if __name__ == '__main__':
