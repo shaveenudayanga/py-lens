@@ -51,62 +51,61 @@ custom_order = [
 
 def show_graphs(vehicle_data):
 
-    # Create the fuel pie chart
-    # Group by 'Vehicle Fuel Source' and 'Vehicle Make' columns
+    # -------------------------------
+    # Fuel Pie Chart
+    # -------------------------------
     grouped_fuel =  vehicle_data.groupby(['Vehicle Fuel Source', 'Vehicle Make']).size().reset_index(name='count')
-    #Calculate percentage
     grouped_fuel['Percentage'] = (grouped_fuel['count'] / grouped_fuel['count'].sum()) * 100
-    # Create the pie chart
-    fuelPieChart=px.pie(
-            grouped_fuel, values='Percentage',
-            names='Vehicle Fuel Source',
-            title="Fuel Type Distribution",
-    )
+    fuelPieChart = px.pie(
+                    grouped_fuel, values='Percentage',
+                    names='Vehicle Fuel Source',
+                    title="Fuel Type Distribution",
+                    color='Vehicle Fuel Source'
+                )
 
-    # Create the accessibility treemap
-    # Group the data by 'Wheelchair Accessible', 'Vehicle Make', and 'Vehicle Model', and calculate counts
-    grouped_accessibility_data = vehicle_data.groupby(['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model']).size().reset_index(name='Count')
-    # Create the treemap
+    # -------------------------------
+    # Accessibility Treemap
+    # -------------------------------
+    grouped_accessibility = vehicle_data.groupby(
+        ['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model']).size().reset_index(name='Count')
     accessibilityTreeMap = px.treemap(
-                                grouped_accessibility_data,
+                                grouped_accessibility,
                                 path=['Wheelchair Accessible', 'Vehicle Make', 'Vehicle Model'],
                                 values='Count',
-                                labels={'Wheelchair Accessible': 'Wheelchair Accessible',
-                                        'Vehicle Make': 'Vehicle Make'},
-                                title='Treemap of Vehicle Data by Accessibility and Make'
-                            ) 
+                                title="Accessibility Distribution"
+                            )
              
-    # Create the heatmap of vehicle status by fuel source
-    # Group by 'Status' and 'Vehicle Fuel Source' columns
-    grouped_status_fuel_source = vehicle_data.groupby(['Status', 'Vehicle Fuel Source']).size().reset_index(name='count')
-    # Pivot the data to create a matrix
+    # -------------------------------
+    # Status vs Fuel Source Heatmap
+    # -------------------------------
+    grouped_status_fuel_source = vehicle_data.groupby(
+        ['Status', 'Vehicle Fuel Source']).size().reset_index(name='count')
     heatmap_data = grouped_status_fuel_source.pivot(index='Status', columns='Vehicle Fuel Source', values='count')
-    # Create the heatmap figure
-    heatMap = px.imshow(
-        heatmap_data,
-        text_auto=True,  # Display numbers inside heatmap cells
-        color_continuous_scale='Blues',  # Set color scale
-        title='Heatmap of Vehicle Status by Fuel Source'
-    )
+    statusFuelHeatmap = px.imshow(
+                            heatmap_data,
+                            text_auto=True,
+                            color_continuous_scale='Blues',
+                            title='Heatmap of Status vs Fuel Source'
+                        )
 
-    # Create the stacked bar chart of vehicle status by company name
-    # Group by 'Status' and 'Company Name' columns
+    # -------------------------------
+    # Stacked bar chart of vehicle status by company name
+    # -------------------------------
     grouped_Status_Company_Name = vehicle_data.groupby(['Status', 'Company Name']).size().reset_index(name='count')
-    # Create the stacked bar chart
     stackedBarChart = px.bar(
-                        grouped_Status_Company_Name,
-                        x='Status',
-                        y='count',
-                        color='Company Name',
-                        barmode='group',
-                        labels={'Status': 'Status', 'count': 'Count'},
-                        title='Vehicle Status Distribution by Company Name',
+                            grouped_Status_Company_Name,
+                            x='Status',
+                            y='count',
+                            color='Company Name',
+                            barmode='group',
+                            labels={'Status': 'Status', 'count': 'Count'},
+                            title='Vehicle Status Distribution by Company Name',
                         )
     
-    return fuelPieChart, accessibilityTreeMap, heatMap, stackedBarChart
+    return fuelPieChart, accessibilityTreeMap, statusFuelHeatmap, stackedBarChart
 
 # Call the function to show the graphs
-fuelPieChart, accessibilityTreeMap, heatMap, stackedBarChart = show_graphs(vehicle_data)
+fuelPieChart, accessibilityTreeMap, statusFuelHeatmap, stackedBarChart = show_graphs(vehicle_data)
 
 #-------------------------------------------------------------------------------------------
 
@@ -195,7 +194,7 @@ app.layout = html.Div([
             html.Div([
                 dcc.Graph(
                     id='status-fuel-source-chart',
-                    figure=heatMap,
+                    figure=statusFuelHeatmap,
                     config={'displayModeBar': False},
                     style={'height': '600px', 'width': '100%'}
                     )
@@ -260,11 +259,18 @@ def update_fuel_chart(selected_year_range, selected_fuel_types, selected_accessi
         filtered_data = filtered_data[filtered_data['Wheelchair Accessible'].isin([selected_accessibility])]
     if selected_vehicle_makes:
         filtered_data = filtered_data[filtered_data['Vehicle Make'].isin(selected_vehicle_makes)]
+    # Handle no data scenario globally
+    if filtered_data.empty:
+        emptyPie = "Fuel Type Distribution: No Data Available"
+        emptyTreeMap = "Accessibility Distribution: No Data Available"
+        emptyHeatmap = "Heatmap of Status vs Fuel Source: No Data Available"
+        empty_message = px.pie(title=emptyPie), px.treemap(title=emptyTreeMap), px.imshow([[0]], title=emptyHeatmap)
+        return empty_message
     
     # Call the function to show the graphs
-    fuelPieChart, accessibilityTreeMap, heatMap, stackedBarChart = show_graphs(filtered_data)
+    fuelPieChart, accessibilityTreeMap, statusFuelHeatmap, stackedBarChart = show_graphs(filtered_data)
     # Return the updated figures
-    return fuelPieChart, accessibilityTreeMap, heatMap
+    return fuelPieChart, accessibilityTreeMap, statusFuelHeatmap
 
 # Run the app
 if __name__ == '__main__':
