@@ -1,4 +1,3 @@
-=======
 # the-wheels-in-motion
 Analyze public passenger vehicle data and Kia reviews to extract insights using data preparation, NLP classification, sentiment analysis, and interactive visualizations.
 
@@ -64,4 +63,3 @@ Rationale for Selecting facebook/bart-large-mnli for Zero-Shot Classification:
 
     Proven Success:
         facebook/bart-large-mnli is widely adopted in NLP applications requiring zero-shot classification, with well-documented performance and community support.
->>>>>>> origin/task2-model-deployment
