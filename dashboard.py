@@ -266,7 +266,13 @@ def update_fuel_chart(selected_year_range, selected_fuel_types, selected_accessi
         emptyPie = "Fuel Type Distribution: No Data Available"
         emptyTreeMap = "Accessibility Distribution: No Data Available"
         emptyHeatmap = "Heatmap of Status vs Fuel Source: No Data Available"
-        empty_message = px.pie(title=emptyPie), px.treemap(title=emptyTreeMap), px.imshow([[0]], title=emptyHeatmap)
+        emptyBarChart = "Vehicle Fuel Source Distribution by Vehicle Make: No Data Available"
+        empty_message = (
+            px.pie(title=emptyPie),
+            px.treemap(title=emptyTreeMap),
+            px.imshow([[0]], title=emptyHeatmap),
+            px.bar(title=emptyBarChart)
+        )
         return empty_message
     
     # Call the function to show the graphs
